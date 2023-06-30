@@ -1,0 +1,11 @@
+node_modules/
+.env
+.DS_Store
+.vscode/
+.idea/
+.cache/
+.next/
+.out/
+.sass-cache/
+.firebase/
+.serverless/
