@@ -2,8 +2,10 @@ import { Button, Form, Input } from 'antd';
 import Link from 'next/link';
 import { useCallback, useState } from 'react';
 import styled from 'styled-components';
-import PropTypes from 'prop-types';
+import { useDispatch } from 'react-redux';
 import useInput from '../hooks/useInput';
+import { loginAction } from '../slices/userSlice';
+
 /*
 useCallback: 함수를 캐싱하는 것.
 
@@ -21,24 +23,15 @@ const FormWrapper = styled(Form)`
   padding: 10px;
 `;
 
-const LoginForm = ({ setIsLoggedIn }) => {
-  // const [id, setId] = useState('');
-  // const [password, setPassword] = useState('');
-
-  // const onChangeId = useCallback(e => {
-  //   setId(e.target.value);
-  // }, []);
-
-  // const onChangePassword = useCallback(e => {
-  //   setPassword(e.target.value);
-  // }, []);
+const LoginForm = () => {
+  const dispatch = useDispatch();
   const [id, onChangeId] = useInput('');
   const [password, onChangePassword] = useInput('');
 
   const onSubmitForm = useCallback(() => {
     console.log(id, password);
-    setIsLoggedIn(true);
-  }, [id, password, setIsLoggedIn]);
+    dispatch(loginAction({ id, password }));
+  }, [id, password, dispatch]);
 
   return (
     <FormWrapper onFinish={onSubmitForm}>
@@ -63,10 +56,6 @@ const LoginForm = ({ setIsLoggedIn }) => {
       </ButtonWrapper>
     </FormWrapper>
   );
-};
-
-LoginForm.propTypes = {
-  setIsLoggedIn: PropTypes.func.isRequired,
 };
 
 export default LoginForm;
