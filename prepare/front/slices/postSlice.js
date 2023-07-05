@@ -23,12 +23,14 @@ const initialState = {
       ],
       Comments: [
         {
+          id: 1,
           User: {
             nickname: 'nero',
           },
           content: '우와 개정판이 나왔군요~',
         },
         {
+          id: 2,
           User: {
             nickname: 'hero',
           },
