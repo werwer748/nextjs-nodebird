@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
+import { addPostSuccess, removePostSuccess } from './postSlice';
 
 const initialState = {
   logInLoading: false,
@@ -14,6 +15,17 @@ const initialState = {
   signUpDone: false,
   signUpError: null,
 
+  changeNicknameLoading: false, // 닉네임 변경 시도중
+  changeNicknameDone: false,
+  changeNicknameError: null,
+
+  followLoading: false, // 팔로우 시도중
+  followDone: false,
+  followError: null,
+  unfollowLoading: false, // 언팔로우 시도중
+  unfollowDone: false,
+  unfollowError: null,
+
   me: null,
   signUpData: {},
   loginData: {},
@@ -23,9 +35,9 @@ const dummyUser = data => ({
   ...data,
   nickname: '휴고',
   id: 1,
-  Posts: [],
-  Followings: [],
-  Followers: [],
+  Posts: [{ id: 1 }],
+  Followings: [{ nickname: '손오공' }, { nickname: '손오반' }, { nickname: '손오천' }],
+  Followers: [{ nickname: '손오공' }, { nickname: '손오반' }, { nickname: '손오천' }],
 });
 
 const userSlice = createSlice({
@@ -74,10 +86,46 @@ const userSlice = createSlice({
       state.signUpLoading = false;
       state.signUpError = action.payload;
     },
+    followRequestAction(state, action) {
+      state.followLoading = true;
+      state.followDone = false;
+      state.followError = null;
+    },
+    followSuccessAction(state, action) {
+      state.followLoading = false;
+      state.followDone = true;
+      state.me.Followings.push({ id: action.payload });
+    },
+    followFailureAction(state, action) {
+      state.followLoading = false;
+      state.followError = action.payload;
+    },
+    unfollowRequestAction(state, action) {
+      state.unfollowLoading = true;
+      state.unfollowDone = false;
+      state.unfollowError = null;
+    },
+    unfollowSuccessAction(state, action) {
+      state.unfollowLoading = false;
+      state.unfollowDone = true;
+      state.me.Followings = state.me.Followings.filter(v => v.id !== action.payload);
+    },
+    unfollowFailureAction(state, action) {
+      state.unfollowLoading = false;
+      state.unfollowError = action.payload;
+    },
   },
   extraReducers: builder => {
     builder.addCase(HYDRATE, (state, action) => {
       return { ...state, ...action.payload };
+    });
+    builder.addCase(addPostSuccess, (state, action) => {
+      state.me.Posts.unshift(action.payload);
+      // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
+    });
+    builder.addCase(removePostSuccess, (state, action) => {
+      state.me.Posts = state.me.Posts.filter(post => post.id !== action.payload);
+      // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
     });
   },
 });
@@ -94,6 +142,14 @@ export const {
   signupRequestAction,
   signupSuccessAction,
   signupFailureAction,
+
+  followRequestAction,
+  followSuccessAction,
+  followFailureAction,
+
+  unfollowRequestAction,
+  unfollowSuccessAction,
+  unfollowFailureAction,
 } = userSlice.actions;
 
 export default userSlice;

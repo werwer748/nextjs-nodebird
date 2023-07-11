@@ -1,14 +1,19 @@
 import { Avatar, Button, Card, List, Popover } from 'antd';
 import { EllipsisOutlined, HeartOutlined, MessageOutlined, RetweetOutlined, HeartTwoTone } from '@ant-design/icons';
 import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import PostImages from './PostImages';
 import { useCallback, useState } from 'react';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
+import { removePostRequest } from '../slices/postSlice';
+import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
-  const id = useSelector(state => state.user.me);
+  const dispatch = useDispatch();
+  const id = useSelector(state => state.user.me?.id);
+  const { removePostLoading } = useSelector(state => state.post);
+
   const [liked, setLiked] = useState(false);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
 
@@ -18,6 +23,11 @@ const PostCard = ({ post }) => {
 
   const onToggleComment = useCallback(() => {
     setCommentFormOpened(prev => !prev);
+  }, []);
+
+  const onRemovePost = useCallback(() => {
+    console.log('remove post id', post.id);
+    dispatch(removePostRequest(post.id));
   }, []);
 
   return (
@@ -37,21 +47,24 @@ const PostCard = ({ post }) => {
           <Popover
             key="more"
             content={
-              <Button.Group>
+              <>
                 {id && post.User.id === id ? (
                   <>
                     <Button>수정</Button>
-                    <Button type="danger">삭제</Button>
+                    <Button danger onClick={onRemovePost} loading={removePostLoading}>
+                      삭제
+                    </Button>
                   </>
                 ) : (
                   <Button>신고</Button>
                 )}
-              </Button.Group>
+              </>
             }
           >
             <EllipsisOutlined />
           </Popover>,
         ]}
+        extra={id && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
@@ -61,7 +74,7 @@ const PostCard = ({ post }) => {
       </Card>
       {commentFormOpened && (
         <div>
-          <CommentForm post={post} />
+          <CommentForm post={post} setCommentFormOpened={setCommentFormOpened} />
           <List
             header={`${post.Comments.length}개의 댓글`}
             style={{ marginTop: 30 }}
@@ -85,7 +98,7 @@ const PostCard = ({ post }) => {
 
 PostCard.propTypes = {
   post: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     User: PropTypes.object,
     content: PropTypes.string,
     createdAt: PropTypes.object,

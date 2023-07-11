@@ -22,9 +22,9 @@ const PostForm = () => {
   }, []);
 
   const onSubmit = useCallback(() => {
-    dispatch(addPostRequest());
+    dispatch(addPostRequest(text));
     // setText('');
-  }, [dispatch]);
+  }, [dispatch, text]);
 
   return (
     <Form style={{ margin: '10px 0 20px' }} encType="multipart/form-data" onFinish={onSubmit}>

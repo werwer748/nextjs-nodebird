@@ -1,48 +1,92 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
+import shortId from 'shortid';
+import { faker } from '@faker-js/faker';
 
-const initialState = {
-  addPostLoading: false,
-  addPostDone: false,
-  addPostError: null,
-
-  mainPosts: [
-    {
-      id: 1,
+export const generateDummyPost = number =>
+  Array(number)
+    .fill()
+    .map((v, i) => ({
+      id: shortId.generate(),
       User: {
-        id: 1,
-        nickname: '강준기',
+        id: shortId.generate(),
+        nickname: faker.internet.userName(),
       },
-      content: '첫 번째 게시글 #해시태그 #익스프레스',
+      content: faker.lorem.paragraph(),
       Images: [
         {
-          src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-        },
-        {
-          src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
-        },
-        {
-          src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
+          src: faker.image.urlLoremFlickr(),
         },
       ],
       Comments: [
         {
-          id: 1,
           User: {
-            nickname: 'nero',
+            id: shortId.generate(),
+            nickname: faker.internet.userName(),
           },
-          content: '우와 개정판이 나왔군요~',
-        },
-        {
-          id: 2,
-          User: {
-            nickname: 'hero',
-          },
-          content: '얼른 사고싶어요~',
+          content: faker.lorem.sentence(),
         },
       ],
-    },
-  ],
+    }));
+
+const initialState = {
+  loadPostsLoading: false,
+  loadPostsDone: false,
+  loadPostsError: null,
+  hasMorePosts: true,
+
+  addPostLoading: false,
+  addPostDone: false,
+  addPostError: null,
+
+  removePostLoading: false,
+  removePostDone: false,
+  removePostError: null,
+
+  mainPosts: [],
+  // mainPosts: [
+  //   {
+  //     id: 1,
+  //     User: {
+  //       id: 1,
+  //       nickname: '강준기',
+  //     },
+  //     content: '첫 번째 게시글 #해시태그 #익스프레스',
+  //     Images: [
+  //       {
+  //         id: shortId.generate(),
+  //         src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
+  //       },
+  //       {
+  //         id: shortId.generate(),
+  //         src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
+  //       },
+  //       {
+  //         id: shortId.generate(),
+  //         src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
+  //       },
+  //     ],
+  //     Comments: [
+  //       {
+  //         id: shortId.generate(),
+  //         User: {
+  //           id: shortId.generate(),
+  //           nickname: 'nero',
+  //         },
+  //         content: '우와 개정판이 나왔군요~',
+  //       },
+  //       {
+  //         id: shortId.generate(),
+  //         User: {
+  //           id: shortId.generate(),
+  //           nickname: 'hero',
+  //         },
+  //         content: '얼른 사고싶어요~',
+  //       },
+  //     ],
+  //   },
+  //   ...dummyPosts,
+  // ],
   imagePaths: [],
 
   addCommentLoading: false,
@@ -50,21 +94,26 @@ const initialState = {
   addCommentError: null,
 };
 
-const dummyPost = {
-  id: 2,
-  User: {
-    id: 1,
-    nickname: '강준기',
-  },
-  content: '더미 데이터!',
-  Images: [],
-  Comments: [],
-};
-
 const userSlice = createSlice({
   name: 'post',
   initialState,
   reducers: {
+    loadPostsRequest(state, action) {
+      state.loadPostsLoading = true;
+      state.loadPostsDone = false;
+      state.loadPostsError = null;
+    },
+    loadPostsSuccess(state, action) {
+      state.loadPostsLoading = false;
+      state.loadPostsDone = true;
+      // const data = action.payload;
+      state.mainPosts = state.mainPosts.concat(action.payload);
+      state.hasMorePosts = state.mainPosts.length < 50;
+    },
+    loadPostsFailure(state, action) {
+      state.loadPostsLoading = false;
+      state.loadPostsError = action.payload;
+    },
     addPostRequest(state, action) {
       state.addPostLoading = true;
       state.addPostDone = false;
@@ -73,14 +122,27 @@ const userSlice = createSlice({
     addPostSuccess(state, action) {
       state.addPostLoading = false;
       state.addPostDone = true;
-      state.mainPosts.unshift(dummyPost);
+      state.mainPosts.unshift(action.payload);
     },
     addPostFailure(state, action) {
       state.addPostLoading = false;
       state.addPostError = action.payload;
     },
+    removePostRequest(state, action) {
+      state.removePostLoading = true;
+      state.removePostDone = false;
+      state.removePostError = null;
+    },
+    removePostSuccess(state, action) {
+      state.removePostLoading = false;
+      state.removePostDone = true;
+      state.mainPosts = state.mainPosts.filter(v => v.id !== action.payload);
+    },
+    removePostFailure(state, action) {
+      state.removePostLoading = false;
+      state.removePostError = action.payload;
+    },
     addCommentRequest(state, action) {
-      console.log('reducer addComment');
       state.addCommentLoading = true;
       state.addCommentDone = false;
       state.addCommentError = null;
@@ -104,9 +166,18 @@ const userSlice = createSlice({
 });
 
 export const {
+  loadPostsRequest,
+  loadPostsSuccess,
+  loadPostsFailure,
+
   addPostRequest,
   addPostSuccess,
   addPostFailure,
+
+  removePostRequest,
+  removePostSuccess,
+  removePostFailure,
+
   addCommentRequest,
   addCommentSuccess,
   addCommentFailure,

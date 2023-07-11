@@ -10,6 +10,12 @@ import {
   signupRequestAction,
   signupSuccessAction,
   signupFailureAction,
+  followRequestAction,
+  followSuccessAction,
+  followFailureAction,
+  unfollowRequestAction,
+  unfollowSuccessAction,
+  unfollowFailureAction,
 } from '../slices/userSlice';
 
 function logInAPI() {
@@ -46,6 +52,31 @@ function* signUp() {
   }
 }
 
+function* follow(action) {
+  try {
+    yield delay(1000);
+    yield put(followSuccessAction(action.payload));
+  } catch (err) {
+    yield put(followFailureAction(err.response.data));
+  }
+}
+function* unfollow(action) {
+  try {
+    yield delay(1000);
+    yield put(unfollowSuccessAction(action.payload));
+  } catch (err) {
+    yield put(unfollowFailureAction(err.response.data));
+  }
+}
+
+function* watchFollow() {
+  yield takeLatest(followRequestAction, follow);
+}
+
+function* watchUnFollow() {
+  yield takeLatest(unfollowRequestAction, unfollow);
+}
+
 function* watchSignUp() {
   yield takeLatest(signupRequestAction, signUp);
 }
@@ -58,5 +89,11 @@ function* watchLogout() {
 }
 
 export default function* userSaga() {
-  yield all([fork(watchLogin), fork(watchLogout), fork(watchSignUp)]);
+  yield all([
+    fork(watchLogin),
+    fork(watchLogout),
+    fork(watchSignUp),
+    fork(watchFollow),
+    fork(watchUnFollow), //fork()
+  ]);
 }

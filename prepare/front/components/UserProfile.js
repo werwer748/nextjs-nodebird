@@ -7,6 +7,8 @@ const UserProfile = () => {
   const dispatch = useDispatch();
   const { me, logOutLoading } = useSelector(state => state.user);
 
+  console.log('me확인 ===', me);
+
   const onLogOut = useCallback(() => {
     dispatch(logoutRequestAction());
   }, [dispatch]);
