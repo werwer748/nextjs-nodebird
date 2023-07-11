@@ -1,11 +1,12 @@
 import Head from 'next/head';
 import AppLayout from '../components/AppLayout';
 import { Button, Checkbox, Form, Input } from 'antd';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useInput from '../hooks/useInput';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import { signupRequestAction } from '../slices/userSlice';
+import Router from 'next/router';
 
 const ErrorMessage = styled.div`
   color: red;
@@ -13,7 +14,7 @@ const ErrorMessage = styled.div`
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading } = useSelector(state => state.user);
+  const { signUpLoading, signUpDone, signUpError } = useSelector(state => state.user);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -22,6 +23,18 @@ const Signup = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [term, setTerm] = useState('');
   const [termError, setTermError] = useState(false);
+
+  useEffect(() => {
+    if (signUpDone) {
+      Router.push('/');
+    }
+  }, [signUpDone]);
+
+  useEffect(() => {
+    if (signUpError) {
+      alert(signUpError);
+    }
+  }, [signUpError]);
 
   const onChangePasswordCheck = useCallback(
     e => {
@@ -54,9 +67,9 @@ const Signup = () => {
       </Head>
       <Form onFinish={onSubmit}>
         <div>
-          <label htmlFor="user-email">에미일</label>
+          <label htmlFor="user-email">이메일</label>
           <br />
-          <Input name="user-email" required value={email} onChange={onChangeEmail} />
+          <Input name="user-email" type="email" required value={email} onChange={onChangeEmail} />
         </div>
         <div>
           <label htmlFor="user-nick">닉네임</label>

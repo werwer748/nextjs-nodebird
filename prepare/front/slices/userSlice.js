@@ -127,6 +127,11 @@ const userSlice = createSlice({
       state.me.Posts = state.me.Posts.filter(post => post.id !== action.payload);
       // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
     });
+    builder.addCase(signupSuccessAction, (state, action) => {
+      state.signUpError = null;
+      state.signUpDone = false;
+      // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
+    });
   },
 });
 

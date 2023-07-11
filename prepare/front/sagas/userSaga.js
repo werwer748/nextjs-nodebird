@@ -17,6 +17,7 @@ import {
   unfollowSuccessAction,
   unfollowFailureAction,
 } from '../slices/userSlice';
+import { signUpAPI } from '../api/user';
 
 function logInAPI() {
   return axios.post('/api/login');
@@ -42,13 +43,15 @@ function* logout() {
   }
 }
 
-function* signUp() {
+function* signUp(action) {
   try {
-    // const result = yield call(logInAPI);
-    yield delay(1000);
+    console.log('saga signUp');
+    const result = yield call(signUpAPI, action.payload);
+    console.log('saga signUp result', result);
     yield put(signupSuccessAction());
   } catch (err) {
-    yield put(signupFailureAction(err.response.data));
+    console.log('saga에서 받은 에러', err.response?.data);
+    yield put(signupFailureAction(err.response?.data));
   }
 }
 
