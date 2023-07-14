@@ -1,5 +1,4 @@
-import axios from 'axios';
-import { all, call, delay, fork, put, takeLatest } from 'redux-saga/effects';
+import { all, call, fork, put, takeLatest } from 'redux-saga/effects';
 import {
   loginRequestAction,
   loginSuccessAction,
@@ -7,6 +6,9 @@ import {
   logoutRequestAction,
   logoutSuccessAction,
   logoutFailureAction,
+  loadMyInfoRequestAction,
+  loadMyInfoSuccessAction,
+  loadMyInfoFailureAction,
   signupRequestAction,
   signupSuccessAction,
   signupFailureAction,
@@ -16,18 +18,37 @@ import {
   unfollowRequestAction,
   unfollowSuccessAction,
   unfollowFailureAction,
+  changeNicknameRequest,
+  changeNicknameSuccess,
+  changeNicknameFailure,
+  loadFollowersRequest,
+  loadFollowersSuccess,
+  loadFollowersFailure,
+  loadFollowingsRequest,
+  loadFollowingsSuccess,
+  loadFollowingsFailure,
+  removeFollowerRequest,
+  removeFollowerSuccess,
+  removeFollowerFailure,
 } from '../slices/userSlice';
-import { signUpAPI } from '../api/user';
-
-function logInAPI() {
-  return axios.post('/api/login');
-}
+import {
+  logInAPI,
+  signUpAPI,
+  logOutAPI,
+  loadMyInfoAPI,
+  changeNicknameAPI,
+  followAPI,
+  unfollowAPI,
+  loadFollowersAPI,
+  loadFollowingsAPI,
+  removeFollowerAPI,
+} from '../api/user';
 
 function* login(action) {
   try {
-    // const result = yield call(logInAPI);
-    yield delay(1000);
-    yield put(loginSuccessAction(action.payload));
+    const result = yield call(logInAPI, action.payload);
+    console.log('saga login result', result);
+    yield put(loginSuccessAction(result.data));
   } catch (err) {
     yield put(loginFailureAction(err.response.data));
   }
@@ -35,8 +56,7 @@ function* login(action) {
 
 function* logout() {
   try {
-    // const result = yield call(logInAPI);
-    yield delay(1000);
+    yield call(logOutAPI);
     yield put(logoutSuccessAction());
   } catch (err) {
     yield put(logoutFailureAction(err.response.data));
@@ -45,7 +65,7 @@ function* logout() {
 
 function* signUp(action) {
   try {
-    console.log('saga signUp');
+    // console.log('saga signUp');
     const result = yield call(signUpAPI, action.payload);
     console.log('saga signUp result', result);
     yield put(signupSuccessAction());
@@ -57,19 +77,95 @@ function* signUp(action) {
 
 function* follow(action) {
   try {
-    yield delay(1000);
-    yield put(followSuccessAction(action.payload));
+    const result = yield call(followAPI, action.payload);
+    console.log('saga follow result.data', result.data);
+    yield put(followSuccessAction(result.data));
   } catch (err) {
     yield put(followFailureAction(err.response.data));
   }
 }
 function* unfollow(action) {
   try {
-    yield delay(1000);
-    yield put(unfollowSuccessAction(action.payload));
+    const result = yield call(unfollowAPI, action.payload);
+    console.log('saga unfollow result.data', result.data);
+    yield put(unfollowSuccessAction(result.data));
   } catch (err) {
     yield put(unfollowFailureAction(err.response.data));
   }
+}
+
+function* loadMyInfo() {
+  try {
+    const result = yield call(loadMyInfoAPI);
+    console.log('saga loadMyInfo result', result);
+    yield put(loadMyInfoSuccessAction(result.data));
+  } catch (err) {
+    yield put(loadMyInfoFailureAction(err.response.data));
+  }
+}
+
+function* changeNickname(action) {
+  try {
+    const result = yield call(changeNicknameAPI, action.payload);
+    console.log('saga changeNickname result.data', result.data);
+    yield put(changeNicknameSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(changeNicknameFailure(error.response.data));
+  }
+}
+
+function* loadFollowers(action) {
+  try {
+    const result = yield call(loadFollowersAPI);
+    console.log('saga loadFollowers result.data', result.data);
+    yield put(loadFollowersSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(loadFollowersFailure(error.response.data));
+  }
+}
+
+function* loadFollowings(action) {
+  try {
+    const result = yield call(loadFollowingsAPI);
+    console.log('saga loadFollowings result.data', result.data);
+    yield put(loadFollowingsSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(loadFollowingsFailure(error.response.data));
+  }
+}
+
+function* removeFollower(action) {
+  try {
+    const result = yield call(removeFollowerAPI, action.payload);
+    console.log('saga removeFollower result.data', result.data);
+    yield put(removeFollowerSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(removeFollowerFailure(error.response.data));
+  }
+}
+
+function* watchRemoveFollower() {
+  yield takeLatest(removeFollowerRequest, removeFollower);
+}
+
+function* watchLoadFollowers() {
+  yield takeLatest(loadFollowersRequest, loadFollowers);
+}
+
+function* watchLoadFollowings() {
+  yield takeLatest(loadFollowingsRequest, loadFollowings);
+}
+
+function* watchChangeNickname() {
+  yield takeLatest(changeNicknameRequest, changeNickname);
+}
+
+function* watchLoadMyInfo() {
+  yield takeLatest(loadMyInfoRequestAction, loadMyInfo);
 }
 
 function* watchFollow() {
@@ -97,6 +193,11 @@ export default function* userSaga() {
     fork(watchLogout),
     fork(watchSignUp),
     fork(watchFollow),
-    fork(watchUnFollow), //fork()
+    fork(watchUnFollow),
+    fork(watchLoadMyInfo),
+    fork(watchChangeNickname),
+    fork(watchLoadFollowers),
+    fork(watchLoadFollowings),
+    fork(watchRemoveFollower),
   ]);
 }

@@ -11,6 +11,10 @@ const initialState = {
   logOutDone: false,
   logOutError: null,
 
+  loadMyInfoLoading: false,
+  loadMyInfoDone: false,
+  loadMyInfoError: null,
+
   signUpLoading: false,
   signUpDone: false,
   signUpError: null,
@@ -26,19 +30,21 @@ const initialState = {
   unfollowDone: false,
   unfollowError: null,
 
+  loadFollowersLoading: false,
+  loadFollowersDone: false,
+  loadFollowersError: null,
+  loadFollowingsLoading: false,
+  loadFollowingsDone: false,
+  loadFollowingsError: null,
+
+  removeFollowerLoading: false,
+  removeFollowerDone: false,
+  removeFollowerError: null,
+
   me: null,
   signUpData: {},
   loginData: {},
 };
-
-const dummyUser = data => ({
-  ...data,
-  nickname: '휴고',
-  id: 1,
-  Posts: [{ id: 1 }],
-  Followings: [{ nickname: '손오공' }, { nickname: '손오반' }, { nickname: '손오천' }],
-  Followers: [{ nickname: '손오공' }, { nickname: '손오반' }, { nickname: '손오천' }],
-});
 
 const userSlice = createSlice({
   name: 'user',
@@ -53,7 +59,8 @@ const userSlice = createSlice({
     loginSuccessAction(state, action) {
       state.logInLoading = false;
       state.logInDone = true;
-      state.me = dummyUser(action.payload);
+      console.log('slice login success', action.payload);
+      state.me = action.payload;
     },
     loginFailureAction(state, action) {
       state.logInLoading = false;
@@ -73,6 +80,20 @@ const userSlice = createSlice({
       state.logOutLoading = false;
       state.logOutError = action.payload;
     },
+    loadMyInfoRequestAction(state, action) {
+      state.loadMyInfoLoading = true;
+      state.loadMyInfoDone = false;
+      state.loadMyInfoError = null;
+    },
+    loadMyInfoSuccessAction(state, action) {
+      state.loadMyInfoLoading = false;
+      state.loadMyInfoDone = true;
+      state.me = action.payload;
+    },
+    loadMyInfoFailureAction(state, action) {
+      state.loadMyInfoLoading = false;
+      state.loadMyInfoError = action.payload;
+    },
     signupRequestAction(state, action) {
       state.signUpLoading = true;
       state.signUpDone = false;
@@ -86,6 +107,11 @@ const userSlice = createSlice({
       state.signUpLoading = false;
       state.signUpError = action.payload;
     },
+    signupStateResetAction(state, action) {
+      state.signUpLoading = false;
+      state.signUpDone = false;
+      state.signUpError = null;
+    },
     followRequestAction(state, action) {
       state.followLoading = true;
       state.followDone = false;
@@ -94,7 +120,7 @@ const userSlice = createSlice({
     followSuccessAction(state, action) {
       state.followLoading = false;
       state.followDone = true;
-      state.me.Followings.push({ id: action.payload });
+      state.me.Followings.push({ id: action.payload.UserId });
     },
     followFailureAction(state, action) {
       state.followLoading = false;
@@ -108,11 +134,67 @@ const userSlice = createSlice({
     unfollowSuccessAction(state, action) {
       state.unfollowLoading = false;
       state.unfollowDone = true;
-      state.me.Followings = state.me.Followings.filter(v => v.id !== action.payload);
+      state.me.Followings = state.me.Followings.filter(v => v.id !== action.payload.UserId);
     },
     unfollowFailureAction(state, action) {
       state.unfollowLoading = false;
       state.unfollowError = action.payload;
+    },
+    changeNicknameRequest(state, action) {
+      state.changeNicknameLoading = true;
+      state.changeNicknameDone = false;
+      state.changeNicknameError = null;
+    },
+    changeNicknameSuccess(state, action) {
+      state.changeNicknameLoading = false;
+      state.changeNicknameDone = true;
+      state.me.nickname = action.payload.nickname;
+    },
+    changeNicknameFailure(state, action) {
+      state.changeNicknameLoading = false;
+      state.changeNicknameError = action.payload;
+    },
+    loadFollowersRequest(state, action) {
+      state.loadFollowersLoading = true;
+      state.loadFollowersDone = false;
+      state.loadFollowersError = null;
+    },
+    loadFollowersSuccess(state, action) {
+      state.loadFollowersLoading = false;
+      state.loadFollowersDone = true;
+      state.me.Followers = action.payload;
+    },
+    loadFollowersFailure(state, action) {
+      state.loadFollowersLoading = false;
+      state.loadFollowersError = action.payload;
+    },
+    loadFollowingsRequest(state, action) {
+      state.loadFollowingsLoading = true;
+      state.loadFollowingsDone = false;
+      state.loadFollowingsError = null;
+    },
+    loadFollowingsSuccess(state, action) {
+      state.loadFollowingsLoading = false;
+      state.loadFollowingsDone = true;
+      state.me.Followings = action.payload;
+    },
+    loadFollowingsFailure(state, action) {
+      state.loadFollowingsLoading = false;
+      state.loadFollowingsError = action.payload;
+    },
+    removeFollowerRequest(state, action) {
+      state.removeFollowerLoading = true;
+      state.removeFollowerDone = false;
+      state.removeFollowerError = null;
+    },
+    removeFollowerSuccess(state, action) {
+      state.removeFollowerLoading = false;
+      state.removeFollowerDone = true;
+      state.me.Followers = state.me.Followers.filter(v => v.id !== action.payload.UserId);
+    },
+    removeFollowerFailure(state, action) {
+      state.removeFollowerLoading = false;
+      state.removeFollowerError = action.payload;
     },
   },
   extraReducers: builder => {
@@ -120,16 +202,11 @@ const userSlice = createSlice({
       return { ...state, ...action.payload };
     });
     builder.addCase(addPostSuccess, (state, action) => {
-      state.me.Posts.unshift(action.payload);
+      state.me.Posts.unshift(action.payload.id);
       // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
     });
     builder.addCase(removePostSuccess, (state, action) => {
       state.me.Posts = state.me.Posts.filter(post => post.id !== action.payload);
-      // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
-    });
-    builder.addCase(signupSuccessAction, (state, action) => {
-      state.signUpError = null;
-      state.signUpDone = false;
       // return { ...state, me: { ...state.me, Posts: [action.payload, ...state.me.Posts] } };
     });
   },
@@ -144,9 +221,14 @@ export const {
   logoutSuccessAction,
   logoutFailureAction,
 
+  loadMyInfoRequestAction,
+  loadMyInfoSuccessAction,
+  loadMyInfoFailureAction,
+
   signupRequestAction,
   signupSuccessAction,
   signupFailureAction,
+  signupStateResetAction,
 
   followRequestAction,
   followSuccessAction,
@@ -155,6 +237,22 @@ export const {
   unfollowRequestAction,
   unfollowSuccessAction,
   unfollowFailureAction,
+
+  changeNicknameRequest,
+  changeNicknameSuccess,
+  changeNicknameFailure,
+
+  loadFollowersRequest,
+  loadFollowersSuccess,
+  loadFollowersFailure,
+
+  loadFollowingsRequest,
+  loadFollowingsSuccess,
+  loadFollowingsFailure,
+
+  removeFollowerRequest,
+  removeFollowerSuccess,
+  removeFollowerFailure,
 } = userSlice.actions;
 
 export default userSlice;

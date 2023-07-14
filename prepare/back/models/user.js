@@ -33,19 +33,19 @@ class User extends Sequelize.Model {
 
   static associate(db) {
     //hasOne <-> BelongsTo 1:1 관계, belognsTo가 있는 쪽에 다른 테이블의 id를 저장하는 컬럼이 생김
-    // db.User.hasMany(db.Post);
-    // db.User.hasMany(db.Comment);
-    // db.User.belongsToMany(db.Post, { through: "Like", as: "Liked" }); // through: 중간 테이블 이름, as: 별칭을 통해 헷갈리지않게
-    // db.User.belongsToMany(db.User, {
-    //   through: "Follow",
-    //   as: "Followers",
-    //   foreignKey: "FollowingId",
-    // });
-    // db.User.belongsToMany(db.User, {
-    //   through: "Follow",
-    //   as: "Followings",
-    //   foreignKey: "FollowerId",
-    // });
+    db.User.hasMany(db.Post);
+    db.User.hasMany(db.Comment);
+    db.User.belongsToMany(db.Post, { through: "Like", as: "Liked" }); // through: 중간 테이블 이름, as: 별칭을 통해 헷갈리지않게
+    db.User.belongsToMany(db.User, {
+      through: "Follow",
+      as: "Followers",
+      foreignKey: "FollowingId",
+    });
+    db.User.belongsToMany(db.User, {
+      through: "Follow",
+      as: "Followings",
+      foreignKey: "FollowerId",
+    });
   }
 }
 

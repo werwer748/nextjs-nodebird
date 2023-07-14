@@ -1,33 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { HYDRATE } from 'next-redux-wrapper';
-import shortId from 'shortid';
-import { faker } from '@faker-js/faker';
-
-export const generateDummyPost = number =>
-  Array(number)
-    .fill()
-    .map((v, i) => ({
-      id: shortId.generate(),
-      User: {
-        id: shortId.generate(),
-        nickname: faker.internet.userName(),
-      },
-      content: faker.lorem.paragraph(),
-      Images: [
-        {
-          src: faker.image.urlLoremFlickr(),
-        },
-      ],
-      Comments: [
-        {
-          User: {
-            id: shortId.generate(),
-            nickname: faker.internet.userName(),
-          },
-          content: faker.lorem.sentence(),
-        },
-      ],
-    }));
 
 const initialState = {
   loadPostsLoading: false,
@@ -44,54 +16,19 @@ const initialState = {
   removePostError: null,
 
   mainPosts: [],
-  // mainPosts: [
-  //   {
-  //     id: 1,
-  //     User: {
-  //       id: 1,
-  //       nickname: '강준기',
-  //     },
-  //     content: '첫 번째 게시글 #해시태그 #익스프레스',
-  //     Images: [
-  //       {
-  //         id: shortId.generate(),
-  //         src: 'https://bookthumb-phinf.pstatic.net/cover/137/995/13799585.jpg?udate=20180726',
-  //       },
-  //       {
-  //         id: shortId.generate(),
-  //         src: 'https://gimg.gilbut.co.kr/book/BN001958/rn_view_BN001958.jpg',
-  //       },
-  //       {
-  //         id: shortId.generate(),
-  //         src: 'https://gimg.gilbut.co.kr/book/BN001998/rn_view_BN001998.jpg',
-  //       },
-  //     ],
-  //     Comments: [
-  //       {
-  //         id: shortId.generate(),
-  //         User: {
-  //           id: shortId.generate(),
-  //           nickname: 'nero',
-  //         },
-  //         content: '우와 개정판이 나왔군요~',
-  //       },
-  //       {
-  //         id: shortId.generate(),
-  //         User: {
-  //           id: shortId.generate(),
-  //           nickname: 'hero',
-  //         },
-  //         content: '얼른 사고싶어요~',
-  //       },
-  //     ],
-  //   },
-  //   ...dummyPosts,
-  // ],
   imagePaths: [],
 
   addCommentLoading: false,
   addCommentDone: false,
   addCommentError: null,
+
+  likePostLoading: false,
+  likePostDone: false,
+  likePostError: null,
+
+  unLikePostLoading: false,
+  unLikePostDone: false,
+  unLikePostError: null,
 };
 
 const userSlice = createSlice({
@@ -136,7 +73,7 @@ const userSlice = createSlice({
     removePostSuccess(state, action) {
       state.removePostLoading = false;
       state.removePostDone = true;
-      state.mainPosts = state.mainPosts.filter(v => v.id !== action.payload);
+      state.mainPosts = state.mainPosts.filter(v => v.id !== action.payload.PostId);
     },
     removePostFailure(state, action) {
       state.removePostLoading = false;
@@ -150,12 +87,42 @@ const userSlice = createSlice({
     addCommentSuccess(state, action) {
       state.addCommentLoading = false;
       state.addCommentDone = true;
-      const post = state.mainPosts.find(v => v.id === action.payload.postId);
+      const post = state.mainPosts.find(v => v.id === action.payload.PostId);
       post.Comments.unshift(action.payload);
     },
     addCommentFailure(state, action) {
       state.addCommentLoading = false;
       state.addCommentError = action.payload;
+    },
+    likePostRequest(state, action) {
+      state.likePostLoading = true;
+      state.likePostDone = false;
+      state.likePostError = null;
+    },
+    likePostSuccess(state, action) {
+      state.likePostLoading = false;
+      state.likePostDone = true;
+      const post = state.mainPosts.find(v => v.id === action.payload.PostId);
+      post.Likers.push({ id: action.payload.UserId });
+    },
+    likePostFailure(state, action) {
+      state.likePostLoading = false;
+      state.likePostError = action.payload;
+    },
+    unLikePostRequest(state, action) {
+      state.unLikePostLoading = true;
+      state.unLikePostDone = false;
+      state.unLikePostError = null;
+    },
+    unLikePostSuccess(state, action) {
+      state.unLikePostLoading = false;
+      state.unLikePostDone = true;
+      const post = state.mainPosts.find(v => v.id === action.payload.PostId);
+      post.Likers = post.Likers.filter(v => v.id !== action.payload.UserId);
+    },
+    unLikePostFailure(state, action) {
+      state.unLikePostLoading = false;
+      state.unLikePostError = action.payload;
     },
   },
   extraReducers: builder => {
@@ -181,5 +148,13 @@ export const {
   addCommentRequest,
   addCommentSuccess,
   addCommentFailure,
+
+  likePostRequest,
+  likePostSuccess,
+  likePostFailure,
+
+  unLikePostRequest,
+  unLikePostSuccess,
+  unLikePostFailure,
 } = userSlice.actions;
 export default userSlice;

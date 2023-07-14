@@ -6,7 +6,7 @@ import PostImages from './PostImages';
 import { useCallback, useState } from 'react';
 import CommentForm from './CommentForm';
 import PostCardContent from './PostCardContent';
-import { removePostRequest } from '../slices/postSlice';
+import { likePostRequest, removePostRequest, unLikePostRequest } from '../slices/postSlice';
 import FollowButton from './FollowButton';
 
 const PostCard = ({ post }) => {
@@ -14,11 +14,14 @@ const PostCard = ({ post }) => {
   const id = useSelector(state => state.user.me?.id);
   const { removePostLoading } = useSelector(state => state.post);
 
-  const [liked, setLiked] = useState(false);
+  // const [liked, setLiked] = useState(false);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
 
-  const onToggleLike = useCallback(() => {
-    setLiked(prev => !prev);
+  const onLike = useCallback(() => {
+    dispatch(likePostRequest(post.id));
+  }, []);
+  const onUnLike = useCallback(() => {
+    dispatch(unLikePostRequest(post.id));
   }, []);
 
   const onToggleComment = useCallback(() => {
@@ -30,6 +33,8 @@ const PostCard = ({ post }) => {
     dispatch(removePostRequest(post.id));
   }, []);
 
+  const liked = post.Likers.find(v => v.id === id);
+
   return (
     <div>
       <Card
@@ -38,9 +43,9 @@ const PostCard = ({ post }) => {
         actions={[
           <RetweetOutlined key="retweet" />,
           liked ? (
-            <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onToggleLike} />
+            <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onUnLike} />
           ) : (
-            <HeartOutlined key="heart" onClick={onToggleLike} />
+            <HeartOutlined key="heart" onClick={onLike} />
           ),
           // <HeartOutlined key="heart" />,
           <MessageOutlined key="comment" onClick={onToggleComment} />,
@@ -64,7 +69,7 @@ const PostCard = ({ post }) => {
             <EllipsisOutlined />
           </Popover>,
         ]}
-        extra={id && <FollowButton post={post} />}
+        extra={id && post.User.id !== id && <FollowButton post={post} />}
       >
         <Card.Meta
           avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
@@ -101,9 +106,10 @@ PostCard.propTypes = {
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     User: PropTypes.object,
     content: PropTypes.string,
-    createdAt: PropTypes.object,
+    createdAt: PropTypes.string,
     Comments: PropTypes.arrayOf(PropTypes.object),
     Images: PropTypes.arrayOf(PropTypes.object),
+    Likers: PropTypes.arrayOf(PropTypes.object),
   }).isRequired,
 };
 

@@ -13,7 +13,10 @@ const CommentForm = ({ post }) => {
 
   const onSubmitComment = useCallback(() => {
     console.log(post.id, commentText, me);
-    dispatch(addCommentRequest({ content: commentText, postId: post.id, userId: me.id, User: me }));
+    if (!me) {
+      return alert('로그인이 필요합니다.');
+    }
+    dispatch(addCommentRequest({ content: commentText, postId: post.id, userId: me.id }));
   }, [post, commentText, dispatch, me]);
 
   useEffect(() => {
@@ -23,7 +26,7 @@ const CommentForm = ({ post }) => {
   }, [addCommentDone]);
 
   return (
-    <Form onFinish={onSubmitComment}>
+    <Form onSubmit={onSubmitComment}>
       <Form.Item style={{ position: 'relative', margin: 0 }}>
         <Input.TextArea
           value={commentText}

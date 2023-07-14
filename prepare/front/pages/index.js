@@ -5,11 +5,16 @@ import PostForm from '../components/PostForm';
 import PostCard from '../components/PostCard';
 import { useEffect } from 'react';
 import { loadPostsRequest } from '../slices/postSlice';
+import { loadMyInfoRequestAction } from '../slices/userSlice';
 
 const Home = () => {
   const dispatch = useDispatch();
   const { me } = useSelector(state => state.user);
   const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+
+  useEffect(() => {
+    dispatch(loadMyInfoRequestAction());
+  }, []);
 
   useEffect(() => {
     if (mainPosts.length === 0) {

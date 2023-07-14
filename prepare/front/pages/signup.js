@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import useInput from '../hooks/useInput';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { signupRequestAction } from '../slices/userSlice';
+import { signupRequestAction, signupStateResetAction } from '../slices/userSlice';
 import Router from 'next/router';
 
 const ErrorMessage = styled.div`
@@ -14,7 +14,7 @@ const ErrorMessage = styled.div`
 
 const Signup = () => {
   const dispatch = useDispatch();
-  const { signUpLoading, signUpDone, signUpError } = useSelector(state => state.user);
+  const { signUpLoading, signUpDone, signUpError, me } = useSelector(state => state.user);
 
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
@@ -25,14 +25,23 @@ const Signup = () => {
   const [termError, setTermError] = useState(false);
 
   useEffect(() => {
+    if (me && me.id) {
+      Router.replace('/');
+      // replace는 기록에서 사라지기때문에 뒤로가기 해도 이쪽으로 돌아오지 않는다.
+    }
+  }, [me && me.id]);
+
+  useEffect(() => {
     if (signUpDone) {
-      Router.push('/');
+      Router.replace('/');
+      dispatch(signupStateResetAction());
     }
   }, [signUpDone]);
 
   useEffect(() => {
     if (signUpError) {
       alert(signUpError);
+      dispatch(signupStateResetAction());
     }
   }, [signUpError]);
 

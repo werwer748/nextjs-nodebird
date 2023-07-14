@@ -1,15 +1,23 @@
 const express = require("express");
 const cors = require("cors");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
+const passport = require("passport");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
 
 const userRouter = require("./routes/user");
 const postRouter = require("./routes/post");
+const postsRouter = require("./routes/posts");
 
 const { sequelize } = require("./models");
+const passportConfig = require("./passport");
 
+dotenv.config();
 const app = express();
 
 sequelize
-  .sync({ force: true })
+  .sync({ force: false })
   .then(() => {
     console.log("데이터베이스 연결 성공");
   })
@@ -17,15 +25,32 @@ sequelize
     console.error(err);
   });
 
+passportConfig();
+
+app.use(morgan("dev"));
 app.use(
   cors({
-    origin: true,
+    origin: "http://localhost:3060",
+    // origin: true,
+    // origin: "*", // credentials: true와 같이 사용 못함
+    credentials: true, // 쿠키도 같이 보내줌
   })
 );
 // 라우터 할당코드 보다 먼저 작성할것!
 // 프론트의 요청을 해석하여 req.body에 넣어줌
 app.use(express.json()); // json형식의 본문을 처리
 app.use(express.urlencoded({ extended: true })); // form으로 넘어온 데이터를 처리
+//* 쿠키 세션 관련 세팅
+app.use(cookieParser(process.env.COOKIE_SECRET)); // 로그인시 쿠키(의미없는 문자)를 프론트로 보내줌 이걸 해석해서 req.cookies에 넣어줌
+app.use(
+  session({
+    saveUninitialized: false,
+    resave: false, // 일단 두 옵션 모두 false => 딱히 true로 할 이유가 없음
+    secret: process.env.COOKIE_SECRET,
+  })
+); // 서버에서 통째로 정보를 가지고있는게 세션 => 근데 이정보가 많아지면 서버가 터짐 => 그래서 쿠키에 id만 가지고 있게끔하고 그걸 패스포트에서 아이디에 매칭시켜서 유저를 가져옴
+app.use(passport.initialize());
+app.use(passport.session());
 
 /**
  * app.get : 가져오다
@@ -36,24 +61,15 @@ app.use(express.urlencoded({ extended: true })); // form으로 넘어온 데이�
  * app.options : 찔러보기???
  * app.head : 헤더만 가져오기(잘안씀)
  */
-// app.get("/", (req, res) => {
-//   res.send("hello express");
-// });
-
-// app.get("/api", (req, res) => {
-//   res.send("hello api");
-// });
-
-// app.get("/api/posts", (req, res) => {
-//   res.json([
-//     { id: 1, content: "hello" },
-//     { id: 2, content: "hello2" },
-//     { id: 3, content: "hello3" },
-//   ]);
-// });
 
 app.use("/user", userRouter);
 app.use("/post", postRouter);
+app.use("/posts", postsRouter);
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send(err.message);
+});
 
 app.listen(3065, () => {
   console.log("서버 실행 중...!");
