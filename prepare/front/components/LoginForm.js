@@ -25,15 +25,15 @@ const FormWrapper = styled(Form)`
 
 const LoginForm = () => {
   const dispatch = useDispatch();
-  const { logInLoading, loginError } = useSelector(state => state.user);
+  const { logInLoading, logInError } = useSelector(state => state.user);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
 
   useEffect(() => {
-    if (loginError) {
-      alert(loginError);
+    if (logInError) {
+      alert(logInError);
     }
-  }, [loginError]);
+  }, [logInError]);
 
   const onSubmitForm = useCallback(() => {
     console.log(email, password);

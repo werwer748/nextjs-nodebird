@@ -29,6 +29,14 @@ const initialState = {
   unLikePostLoading: false,
   unLikePostDone: false,
   unLikePostError: null,
+
+  uploadImagesLoading: false,
+  uploadImagesDone: false,
+  uploadImagesError: null,
+
+  retweetLoading: false,
+  retweetDone: false,
+  retweetError: null,
 };
 
 const userSlice = createSlice({
@@ -45,7 +53,7 @@ const userSlice = createSlice({
       state.loadPostsDone = true;
       // const data = action.payload;
       state.mainPosts = state.mainPosts.concat(action.payload);
-      state.hasMorePosts = state.mainPosts.length < 50;
+      state.hasMorePosts = action.payload.length === 10;
     },
     loadPostsFailure(state, action) {
       state.loadPostsLoading = false;
@@ -60,6 +68,7 @@ const userSlice = createSlice({
       state.addPostLoading = false;
       state.addPostDone = true;
       state.mainPosts.unshift(action.payload);
+      state.imagePaths = [];
     },
     addPostFailure(state, action) {
       state.addPostLoading = false;
@@ -124,6 +133,42 @@ const userSlice = createSlice({
       state.unLikePostLoading = false;
       state.unLikePostError = action.payload;
     },
+    uploadImagesRequest(state, action) {
+      state.uploadImagesLoading = true;
+      state.uploadImagesDone = false;
+      state.uploadImagesError = null;
+    },
+    uploadImagesSuccess(state, action) {
+      state.uploadImagesLoading = false;
+      state.uploadImagesDone = true;
+      state.imagePaths = action.payload;
+    },
+    uploadImagesFailure(state, action) {
+      state.uploadImagesLoading = false;
+      state.uploadImagesError = action.payload;
+    },
+    removeImage(state, action) {
+      state.imagePaths = state.imagePaths.filter((v, i) => i !== action.payload);
+    },
+    retweetRequest(state, action) {
+      state.retweetLoading = true;
+      state.retweetDone = false;
+      state.retweetError = null;
+    },
+    retweetSuccess(state, action) {
+      state.retweetLoading = false;
+      state.retweetDone = true;
+      state.mainPosts.unshift(action.payload);
+    },
+    retweetFailure(state, action) {
+      state.retweetLoading = false;
+      state.retweetError = action.payload;
+    },
+    retweetStateReset(state, action) {
+      state.retweetLoading = false;
+      state.retweetDone = false;
+      state.retweetError = null;
+    },
   },
   extraReducers: builder => {
     builder.addCase(HYDRATE, (state, action) => {
@@ -156,5 +201,16 @@ export const {
   unLikePostRequest,
   unLikePostSuccess,
   unLikePostFailure,
+
+  uploadImagesRequest,
+  uploadImagesSuccess,
+  uploadImagesFailure,
+
+  removeImage,
+
+  retweetRequest,
+  retweetSuccess,
+  retweetFailure,
+  retweetStateReset,
 } = userSlice.actions;
 export default userSlice;

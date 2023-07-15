@@ -17,7 +17,7 @@ const PostImages = ({ images }) => {
   if (images.length === 1) {
     return (
       <>
-        <img role="presentation" src={images[0].src} alt={images[0].src} onClick={onZoom} />
+        <img role="presentation" src={`http://localhost:3065/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
         {showImageZoom && <ImagesZoom open={showImageZoom} images={images} onClose={onClose} />}
       </>
     );
@@ -25,8 +25,20 @@ const PostImages = ({ images }) => {
   if (images.length === 2) {
     return (
       <div style={{ display: 'flex' }}>
-        <img role="presentation" style={{ width: '50%' }} src={images[0].src} alt={images[0].src} onClick={onZoom} />
-        <img role="presentation" style={{ width: '50%' }} src={images[1].src} alt={images[1].src} onClick={onZoom} />
+        <img
+          role="presentation"
+          style={{ width: '50%' }}
+          src={`http://localhost:3065/${images[0].src}`}
+          alt={images[0].src}
+          onClick={onZoom}
+        />
+        <img
+          role="presentation"
+          style={{ width: '50%' }}
+          src={`http://localhost:3065/${images[1].src}`}
+          alt={images[1].src}
+          onClick={onZoom}
+        />
         {showImageZoom && <ImagesZoom open={showImageZoom} images={images} onClose={onClose} />}
       </div>
     );
@@ -39,7 +51,13 @@ const PostImages = ({ images }) => {
           alignItems: 'center',
         }}
       >
-        <img role="presentation" width="50%" src={images[0].src} alt={images[0].src} onClick={onZoom} />
+        <img
+          role="presentation"
+          width="50%"
+          src={`http://localhost:3065/${images[0].src}`}
+          alt={images[0].src}
+          onClick={onZoom}
+        />
         <div
           role="presentation"
           style={{

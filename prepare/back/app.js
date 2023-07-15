@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
+const path = require("path");
 
 const userRouter = require("./routes/user");
 const postRouter = require("./routes/post");
@@ -36,6 +37,9 @@ app.use(
     credentials: true, // 쿠키도 같이 보내줌
   })
 );
+
+//프론트에서 업로드 폴더 접근시 경로 설정
+app.use("/", express.static(path.join(__dirname, "uploads")));
 // 라우터 할당코드 보다 먼저 작성할것!
 // 프론트의 요청을 해석하여 req.body에 넣어줌
 app.use(express.json()); // json형식의 본문을 처리

@@ -1,13 +1,18 @@
 const express = require("express");
+const { Op } = require("sequelize");
 const { Post, Image, Comment, User } = require("../models");
-const { isLoggedIn } = require("./middlewares");
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
+    const where = {};
+    if (parseInt(req.query.lastId, 10)) {
+      // 초기로딩 아닐시!
+      where.id = { [Op.lt]: parseInt(req.query.lastId, 10) }; // lastId보다 작은 숫자 10개 기져와야함
+    }
     const posts = await Post.findAll({
-      //   where: { id: lastId },
+      where,
       limit: 10, //10개만 가져온다.
       // offset: 0, //0부터 시작해서 10개 가져온다. (id: 1 ~ 10)
       order: [
@@ -36,6 +41,19 @@ router.get("/", async (req, res, next) => {
           model: User, // 좋아요 누른 사람
           as: "Likers",
           attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
         },
       ],
     });

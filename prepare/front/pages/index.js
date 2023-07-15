@@ -10,7 +10,13 @@ import { loadMyInfoRequestAction } from '../slices/userSlice';
 const Home = () => {
   const dispatch = useDispatch();
   const { me } = useSelector(state => state.user);
-  const { mainPosts, hasMorePosts, loadPostsLoading } = useSelector(state => state.post);
+  const { mainPosts, hasMorePosts, loadPostsLoading, retweetError } = useSelector(state => state.post);
+
+  useEffect(() => {
+    if (retweetError) {
+      alert(retweetError);
+    }
+  }, [retweetError]);
 
   useEffect(() => {
     dispatch(loadMyInfoRequestAction());
@@ -27,7 +33,9 @@ const Home = () => {
       // console.log(window.scrollY, document.documentElement.clientHeight, document.documentElement.scrollHeight);
       if (window.scrollY + document.documentElement.clientHeight > document.documentElement.scrollHeight - 500) {
         if (hasMorePosts && !loadPostsLoading) {
-          dispatch(loadPostsRequest());
+          const lastId = mainPosts[mainPosts.length - 1]?.id;
+          console.log(lastId);
+          dispatch(loadPostsRequest(lastId));
         }
       }
     }

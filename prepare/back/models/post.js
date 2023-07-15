@@ -36,7 +36,7 @@ class Post extends Sequelize.Model {
      * add, get, set, remove, create 등의 메서드가 생김
      */
 
-    db.Post.belongsTo(db.Post, { as: "RetweetId" }); // RetweetId 컬럼이 생김 // post.addRetweetId
+    db.Post.belongsTo(db.Post, { as: "Retweet" }); // RetweetId 컬럼이 생김 // post.addRetweetId
   }
 }
 
