@@ -6,6 +6,8 @@ import PostCard from '../components/PostCard';
 import { useEffect } from 'react';
 import { loadPostsRequest } from '../slices/postSlice';
 import { loadMyInfoRequestAction } from '../slices/userSlice';
+import wrapper from '../store/configureStore';
+import { END } from 'redux-saga';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -18,15 +20,15 @@ const Home = () => {
     }
   }, [retweetError]);
 
-  useEffect(() => {
-    dispatch(loadMyInfoRequestAction());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(loadMyInfoRequestAction());
+  // }, []);
 
-  useEffect(() => {
-    if (mainPosts.length === 0) {
-      dispatch(loadPostsRequest());
-    }
-  }, [mainPosts]);
+  // useEffect(() => {
+  //   if (mainPosts.length === 0) {
+  //     dispatch(loadPostsRequest());
+  //   }
+  // }, [mainPosts]);
 
   useEffect(() => {
     function onScroll() {
@@ -56,5 +58,15 @@ const Home = () => {
     </AppLayout>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(store => async () => {
+  store.dispatch(loadMyInfoRequestAction());
+  store.dispatch(loadPostsRequest());
+
+  store.dispatch(END); // 공식문서에서 명시 된 사용법
+  await store.sagaTask.toPromise();
+
+  return { props: {} };
+});
 
 export default Home;
