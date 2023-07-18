@@ -176,7 +176,7 @@ router.post(
   // 상기 upload 미들웨어에서 업로드는 끝내주고 req.files에 이미지 정보를 넣어서 아래로 넘겨줌
   async (req, res, next) => {
     try {
-      console.log(req.files);
+      // console.log(req.files);
       res.json(req.files.map((v) => v.filename));
     } catch (error) {
       console.error(error);
@@ -194,6 +194,60 @@ router.delete("/:postId", isLoggedIn, async (req, res, next) => {
       },
     });
     res.json({ PostId: parseInt(req.params.postId, 10) });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/:postId", async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+    if (!post) {
+      return res.status(404).send("존재하지 않는 게시글입니다.");
+    }
+    const fullPost = await Post.findOne({
+      where: { id: post.id },
+      include: [
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+        {
+          model: User, // 좋아요
+          as: "Likers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    res.status(200).json(fullPost);
   } catch (error) {
     console.error(error);
     next(error);

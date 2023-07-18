@@ -5,8 +5,12 @@ import { useCallback, useEffect, useState } from 'react';
 import useInput from '../hooks/useInput';
 import { styled } from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { signupRequestAction, signupStateResetAction } from '../slices/userSlice';
+import { loadMyInfoRequestAction, signupRequestAction, signupStateResetAction } from '../slices/userSlice';
 import Router from 'next/router';
+import wrapper from '../store/configureStore';
+import axios from 'axios';
+import { END } from 'redux-saga';
+import { loadPostsRequest } from '../slices/postSlice';
 
 const ErrorMessage = styled.div`
   color: red;
@@ -117,5 +121,22 @@ const Signup = () => {
     </AppLayout>
   );
 };
+
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({ req, res, ...etc }) => {
+  // 데이터가 자주 바뀐다면 getServerSideProps를 사용하면 좋다.
+  console.log('req 객체 확인 ===', req);
+  const cookie = req ? req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  store.dispatch(loadMyInfoRequestAction());
+  store.dispatch(loadPostsRequest());
+
+  store.dispatch(END); // 공식문서에서 명시 된 사용법
+  await store.sagaTask.toPromise();
+
+  // return { props: {} };
+});
 
 export default Signup;

@@ -9,6 +9,11 @@ export function loadPostsAPI(data) {
   // console.log('loadPostsAPI data ===', data);
   return axios.get(`/posts?lastId=${data || 0}`);
 }
+
+export function loadPostAPI(data) {
+  return axios.get(`/post/${data}`);
+}
+
 export function addCommentAPI(data) {
   return axios.post(`/post/${data.postId}/comment`, { content: data.content });
 }
@@ -31,4 +36,12 @@ export function uploadImagesAPI(data) {
 
 export function retweetAPI(data) {
   return axios.post(`/post/${data}/retweet`);
+}
+
+export function loadUserPostsAPI(data, lastId) {
+  return axios.get(`/user/${data}/posts?lastId=${lastId || 0}`);
+}
+
+export function loadHashtagPostsAPI(data, lastId) {
+  return axios.get(`/hashtag/${encodeURIComponent(data)}?=lastId=${lastId || 0}`);
 }

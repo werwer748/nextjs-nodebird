@@ -1,4 +1,5 @@
-import Head from 'next/head';
+'use client';
+
 import AppLayout from '../components/AppLayout';
 import { useDispatch, useSelector } from 'react-redux';
 import PostForm from '../components/PostForm';
@@ -8,6 +9,8 @@ import { loadPostsRequest } from '../slices/postSlice';
 import { loadMyInfoRequestAction } from '../slices/userSlice';
 import wrapper from '../store/configureStore';
 import { END } from 'redux-saga';
+import axios from 'axios';
+// import headers from 'next/headers';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -59,14 +62,21 @@ const Home = () => {
   );
 };
 
-export const getServerSideProps = wrapper.getServerSideProps(store => async () => {
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({ req, res, ...etc }) => {
+  // 데이터가 자주 바뀐다면 getServerSideProps를 사용하면 좋다.
+  console.log('req 객체 확인 ===', req);
+  const cookie = req ? req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (req && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
   store.dispatch(loadMyInfoRequestAction());
   store.dispatch(loadPostsRequest());
 
   store.dispatch(END); // 공식문서에서 명시 된 사용법
   await store.sagaTask.toPromise();
 
-  return { props: {} };
+  return { props: {} }; // <= 이 부분이 Home 컴포넌트의 props로 전달된다.
 });
 
 export default Home;

@@ -4,6 +4,11 @@ import {
   loadPostsRequest,
   loadPostsSuccess,
   loadPostsFailure,
+  loadUserPostsRequest,
+  loadHashtagPostsRequest,
+  loadPostRequest,
+  loadPostSuccess,
+  loadPostFailure,
   addPostRequest,
   addPostSuccess,
   addPostFailure,
@@ -30,7 +35,10 @@ import {
   addCommentAPI,
   addPostAPI,
   likePostAPI,
+  loadHashtagPostsAPI,
+  loadPostAPI,
   loadPostsAPI,
+  loadUserPostsAPI,
   removePostAPI,
   retweetAPI,
   unLikePostAPI,
@@ -74,6 +82,30 @@ function* loadPosts(action) {
     // console.log('loadPosts action.payload', action.payload);
     const result = yield call(loadPostsAPI, action.payload);
     console.log('saga loadPosts', result.data);
+    yield put(loadPostsSuccess(result.data));
+  } catch (err) {
+    console.error(err);
+    yield put(loadPostsFailure(err));
+  }
+}
+
+function* loadUserPosts(action) {
+  try {
+    // console.log('loadPosts action.payload', action.payload);
+    const result = yield call(loadUserPostsAPI, action.payload.userId, action.payload.lastId);
+    console.log('saga loadUserPosts', result.data);
+    yield put(loadPostsSuccess(result.data));
+  } catch (err) {
+    console.error(err);
+    yield put(loadPostsFailure(err));
+  }
+}
+
+function* loadHashtagPosts(action) {
+  try {
+    // console.log('loadPosts action.payload', action.payload);
+    const result = yield call(loadHashtagPostsAPI, action.payload.hashtag, action.payload.lastId);
+    console.log('saga loadHashtagPosts', result.data);
     yield put(loadPostsSuccess(result.data));
   } catch (err) {
     console.error(err);
@@ -125,6 +157,28 @@ function* retweet(action) {
   }
 }
 
+function* loadPost(action) {
+  try {
+    const result = yield call(loadPostAPI, action.payload);
+    console.log('saga loadPost', result.data);
+    yield put(loadPostSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(loadPostFailure(error.response.data));
+  }
+}
+
+function* watchLoadUserPosts() {
+  yield throttle(5000, loadUserPostsRequest, loadUserPosts);
+}
+function* watchLoadHashtagPosts() {
+  yield throttle(5000, loadHashtagPostsRequest, loadHashtagPosts);
+}
+
+function* watchLoadPost() {
+  yield takeLatest(loadPostRequest, loadPost);
+}
+
 function* watchRetweet() {
   yield takeLatest(retweetRequest, retweet);
 }
@@ -167,5 +221,8 @@ export default function* postSaga() {
     fork(watchUnLikePost),
     fork(watchUploadImages),
     fork(watchRetweet),
+    fork(watchLoadPost),
+    fork(watchLoadUserPosts),
+    fork(watchLoadHashtagPosts),
   ]);
 }

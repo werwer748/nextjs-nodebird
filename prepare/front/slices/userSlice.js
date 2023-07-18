@@ -15,6 +15,10 @@ const initialState = {
   loadMyInfoDone: false,
   loadMyInfoError: null,
 
+  loadUserInfoLoading: false,
+  loadUserInfoDone: false,
+  loadUserInfoError: null,
+
   signUpLoading: false,
   signUpDone: false,
   signUpError: null,
@@ -42,8 +46,7 @@ const initialState = {
   removeFollowerError: null,
 
   me: null,
-  signUpData: {},
-  loginData: {},
+  userInfo: null,
 };
 
 const userSlice = createSlice({
@@ -93,6 +96,20 @@ const userSlice = createSlice({
     loadMyInfoFailureAction(state, action) {
       state.loadMyInfoLoading = false;
       state.loadMyInfoError = action.payload;
+    },
+    loadUserInfoRequestAction(state, action) {
+      state.loadUserInfoLoading = true;
+      state.loadUserInfoDone = false;
+      state.loadUserInfoError = null;
+    },
+    loadUserInfoSuccessAction(state, action) {
+      state.loadUserInfoLoading = false;
+      state.loadUserInfoDone = true;
+      state.userInfo = action.payload;
+    },
+    loadUserInfoFailureAction(state, action) {
+      state.loadUserInfoLoading = false;
+      state.loadUserInfoError = action.payload;
     },
     signupRequestAction(state, action) {
       state.signUpLoading = true;
@@ -224,6 +241,10 @@ export const {
   loadMyInfoRequestAction,
   loadMyInfoSuccessAction,
   loadMyInfoFailureAction,
+
+  loadUserInfoRequestAction,
+  loadUserInfoSuccessAction,
+  loadUserInfoFailureAction,
 
   signupRequestAction,
   signupSuccessAction,

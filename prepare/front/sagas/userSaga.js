@@ -30,6 +30,9 @@ import {
   removeFollowerRequest,
   removeFollowerSuccess,
   removeFollowerFailure,
+  loadUserInfoRequestAction,
+  loadUserInfoSuccessAction,
+  loadUserInfoFailureAction,
 } from '../slices/userSlice';
 import {
   logInAPI,
@@ -42,6 +45,7 @@ import {
   loadFollowersAPI,
   loadFollowingsAPI,
   removeFollowerAPI,
+  loadUserInfoAPI,
 } from '../api/user';
 
 function* login(action) {
@@ -148,6 +152,21 @@ function* removeFollower(action) {
   }
 }
 
+function* loadUserInfo(action) {
+  try {
+    const result = yield call(loadUserInfoAPI, action.payload);
+    console.log('saga loadUserInfo result.data', result.data);
+    yield put(loadUserInfoSuccessAction(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(loadUserInfoFailureAction(error.response.data));
+  }
+}
+
+function* watchLoadUserInfo() {
+  yield takeLatest(loadUserInfoRequestAction, loadUserInfo);
+}
+
 function* watchRemoveFollower() {
   yield takeLatest(removeFollowerRequest, removeFollower);
 }
@@ -199,5 +218,6 @@ export default function* userSaga() {
     fork(watchLoadFollowers),
     fork(watchLoadFollowings),
     fork(watchRemoveFollower),
+    fork(watchLoadUserInfo),
   ]);
 }

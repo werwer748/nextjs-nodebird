@@ -7,6 +7,11 @@ const initialState = {
   loadPostsError: null,
   hasMorePosts: true,
 
+  loadPostLoading: false,
+  loadPostDone: false,
+  loadPostError: null,
+  singlePost: null,
+
   addPostLoading: false,
   addPostDone: false,
   addPostError: null,
@@ -58,6 +63,30 @@ const userSlice = createSlice({
     loadPostsFailure(state, action) {
       state.loadPostsLoading = false;
       state.loadPostsError = action.payload;
+    },
+    loadUserPostsRequest(state, action) {
+      state.loadPostsLoading = true;
+      state.loadPostsDone = false;
+      state.loadPostsError = null;
+    },
+    loadHashtagPostsRequest(state, action) {
+      state.loadPostsLoading = true;
+      state.loadPostsDone = false;
+      state.loadPostsError = null;
+    },
+    loadPostRequest(state, action) {
+      state.loadPostLoading = true;
+      state.loadPostDone = false;
+      state.loadPostError = null;
+    },
+    loadPostSuccess(state, action) {
+      state.loadPostLoading = false;
+      state.loadPostDone = true;
+      state.singlePost = action.payload;
+    },
+    loadPostFailure(state, action) {
+      state.loadPostLoading = false;
+      state.loadPostError = action.payload;
     },
     addPostRequest(state, action) {
       state.addPostLoading = true;
@@ -181,6 +210,13 @@ export const {
   loadPostsRequest,
   loadPostsSuccess,
   loadPostsFailure,
+
+  loadUserPostsRequest,
+  loadHashtagPostsRequest,
+
+  loadPostRequest,
+  loadPostSuccess,
+  loadPostFailure,
 
   addPostRequest,
   addPostSuccess,

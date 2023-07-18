@@ -13,6 +13,10 @@ export function loadMyInfoAPI() {
   return axios.get('/user');
 }
 
+export function loadUserInfoAPI(params) {
+  return axios.get(`/user/${params}`);
+}
+
 export function signUpAPI(params) {
   return axios.post('/user', params);
 }
