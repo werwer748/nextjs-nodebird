@@ -30,6 +30,7 @@ sequelize
   });
 
 passportConfig();
+app.set("port", process.env.PORT || 3065);
 
 if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
@@ -90,6 +91,6 @@ app.use((err, req, res, next) => {
   res.status(500).send(err.message);
 });
 
-app.listen(3065, () => {
+app.listen(app.get("port"), () => {
   console.log("서버 실행 중...!");
 });
