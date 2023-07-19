@@ -50,11 +50,12 @@ const About = () => {
   );
 };
 
-export const getStaticProps = wrapper.getStaticProps(store => async ({ req, res, ...etc }) => {
+// export const getStaticProps = wrapper.getStaticProps(store => async ({ req, res, ...etc }) => {
+export const getServerSideProps = wrapper.getServerSideProps(store => async ({ req, res, ...etc }) => {
   // 언제 접속해도 데이터가 변할일이 없다면 getStaticProps를 사용하면 좋다.
-  console.log('getStaticProps start');
+  console.log('getServerSideProps start');
   store.dispatch(loadUserInfoRequestAction(1));
-  console.log('getStaticProps end');
+  console.log('getServerSideProps end');
   store.dispatch(END);
   await store.sagaTask.toPromise();
 });
