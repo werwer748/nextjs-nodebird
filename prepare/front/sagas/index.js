@@ -24,8 +24,9 @@ yield 를 사용하여 값을 반환할 수 있다.
 
 import userSaga from './userSaga';
 import postSaga from './postSaga';
+import { backUrl } from '../config/config';
 
-axios.defaults.baseURL = 'http://localhost:3065';
+axios.defaults.baseURL = backUrl;
 axios.defaults.withCredentials = true; // 쿠키를 주고받을 수 있게 해줌 패스포트에서 필수인듯
 
 export default function* rootSaga() {

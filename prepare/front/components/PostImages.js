@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 import { PlusOutlined } from '@ant-design/icons';
 import ImagesZoom from './ImagesZoom';
+import { backUrl } from '../config/config';
 
 const PostImages = ({ images }) => {
   const [showImageZoom, setShowImageZoom] = useState(false);
@@ -17,7 +18,7 @@ const PostImages = ({ images }) => {
   if (images.length === 1) {
     return (
       <>
-        <img role="presentation" src={`http://localhost:3065/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
+        <img role="presentation" src={`${backUrl}/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
         {showImageZoom && <ImagesZoom open={showImageZoom} images={images} onClose={onClose} />}
       </>
     );
@@ -28,14 +29,14 @@ const PostImages = ({ images }) => {
         <img
           role="presentation"
           style={{ width: '50%' }}
-          src={`http://localhost:3065/${images[0].src}`}
+          src={`${backUrl}/${images[0].src}`}
           alt={images[0].src}
           onClick={onZoom}
         />
         <img
           role="presentation"
           style={{ width: '50%' }}
-          src={`http://localhost:3065/${images[1].src}`}
+          src={`${backUrl}/${images[1].src}`}
           alt={images[1].src}
           onClick={onZoom}
         />
@@ -51,13 +52,7 @@ const PostImages = ({ images }) => {
           alignItems: 'center',
         }}
       >
-        <img
-          role="presentation"
-          width="50%"
-          src={`http://localhost:3065/${images[0].src}`}
-          alt={images[0].src}
-          onClick={onZoom}
-        />
+        <img role="presentation" width="50%" src={`${backUrl}/${images[0].src}`} alt={images[0].src} onClick={onZoom} />
         <div
           role="presentation"
           style={{

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPostRequest, removeImage, uploadImagesRequest } from '../slices/postSlice';
 import useInput from '../hooks/useInput';
+import { backUrl } from '../config/config';
 
 const PostForm = () => {
   const dispatch = useDispatch();
@@ -92,7 +93,7 @@ const PostForm = () => {
       <div>
         {imagePaths.map((img, i) => (
           <div key={img} style={{ display: 'inline-block' }}>
-            <img src={`http://localhost:3065/${img}`} style={{ width: '200px' }} alt={img} />
+            <img src={`${backUrl}/${img}`} style={{ width: '200px' }} alt={img} />
             <div>
               <Button onClick={onRemoveImage(i)}>제거</Button>
             </div>
