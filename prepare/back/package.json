@@ -4,7 +4,8 @@
   "description": "nextjs nodebird fullstack project",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon app"
+    "dev": "nodemon app",
+    "start": "node app"
   },
   "author": "HugoK",
   "license": "ISC",
