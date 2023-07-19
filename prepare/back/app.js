@@ -76,6 +76,10 @@ app.use(passport.session());
  * app.head : 헤더만 가져오기(잘안씀)
  */
 
+app.get("/", (req, res) => {
+  res.send("hello express");
+});
+
 app.use("/user", userRouter);
 app.use("/post", postRouter);
 app.use("/posts", postsRouter);
