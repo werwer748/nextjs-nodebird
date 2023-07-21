@@ -17,6 +17,32 @@ try {
   fs.mkdirSync("uploads");
 }
 
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
+const upload = multer({
+  // storage: multer.diskStorage({  //기본적인 multer방식
+  //   destination(req, file, done) {
+  //     done(null, "uploads");
+  //   },
+  //   filename(req, file, done) {
+  //     const ext = path.extname(file.originalname); // 확장자 추출(.png)
+  //     const basename = path.basename(file.originalname, ext); // 파일명 추출
+  //     done(null, basename + "_" + new Date().getTime() + ext); // 파일명 + 현재시간 + .확장자 ex) photo123456789.png
+  //   },
+  // }),
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: "hugonode.s3",
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
+    },
+  }),
+  limits: { fieldSize: 20 * 1024 * 1024 }, // 20MB
+});
+
 router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({
@@ -156,32 +182,6 @@ router
       next(error);
     }
   });
-
-AWS.config.update({
-  accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: "ap-northeast-2",
-});
-const upload = multer({
-  // storage: multer.diskStorage({  //기본적인 multer방식
-  //   destination(req, file, done) {
-  //     done(null, "uploads");
-  //   },
-  //   filename(req, file, done) {
-  //     const ext = path.extname(file.originalname); // 확장자 추출(.png)
-  //     const basename = path.basename(file.originalname, ext); // 파일명 추출
-  //     done(null, basename + "_" + new Date().getTime() + ext); // 파일명 + 현재시간 + .확장자 ex) photo123456789.png
-  //   },
-  // }),
-  storage: multerS3({
-    s3: new AWS.S3(),
-    bucket: "hugonode.s3",
-    key(req, file, cb) {
-      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
-    },
-  }),
-  limits: { fieldSize: 20 * 1024 * 1024 }, // 20MB
-});
 
 router.post(
   "/images",
