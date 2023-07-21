@@ -89,6 +89,9 @@ const PostCard = ({ post }) => {
                 ) : (
                   <Button>신고</Button>
                 )}
+                <Button>
+                  <Link href={`/post/${post.id}`}>자세히보기</Link>
+                </Button>
               </>
             }
           >
