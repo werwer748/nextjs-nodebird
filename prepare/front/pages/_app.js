@@ -4,16 +4,18 @@ import { Provider } from 'react-redux';
 
 import wrapper from '../store/configureStore';
 
-const NodeBird = ({ Component, ...rest }) => {
-  const { store, props } = wrapper.useWrappedStore(rest);
+const NodeBird = ({ Component, pageProps }) => {
+  const { store, props } = wrapper.useWrappedStore(pageProps);
   return (
-    <Provider store={store}>
+    <>
       <Head>
         <meta charSet="utf-8" />
         <title>NodeBird</title>
       </Head>
-      <Component {...props.pageProps} />
-    </Provider>
+      <Provider store={store}>
+        <Component {...props} />
+      </Provider>
+    </>
   );
 };
 
