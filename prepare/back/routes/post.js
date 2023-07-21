@@ -192,7 +192,9 @@ router.post(
     try {
       console.log(req.files);
       // res.json(req.files.map((v) => v.filename)); // 기본적인 multer방식
-      res.json(req.files.map((v) => v.location));
+      res.json(
+        req.files.map((v) => v.location.replace(/\/original\//, "/thumb/"))
+      );
     } catch (error) {
       console.error(error);
       next(error);
