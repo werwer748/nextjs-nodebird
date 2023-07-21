@@ -60,7 +60,8 @@ const PostForm = () => {
     const imageFormData = new FormData(); // multipart 형식으로 보내야 함
     // e.target.files는 유사배열이므로 배열로 만들어줘야 함
     [].forEach.call(e.target.files, file => {
-      imageFormData.append('image', file); // image라는 키로 파일들을 넣어줌
+      const encodeFilename = encodeURIComponent(file.name); // 한글 파일명을 인코딩
+      imageFormData.append('image', { ...file, name: encodeFilename }); // image라는 키로 파일들을 넣어줌
     });
     dispatch(uploadImagesRequest(imageFormData));
   }, []);
