@@ -36,18 +36,24 @@ if (process.env.NODE_ENV === "production") {
   app.use(morgan("combined"));
   app.use(hpp());
   app.use(helmet());
+  app.use(
+    cors({
+      origin: ["http://hugonode.com"],
+      // origin: true,
+      // origin: "*", // credentials: true와 같이 사용 못함
+      credentials: true, // 쿠키도 같이 보내줌
+    })
+  );
 } else {
   app.use(morgan("dev"));
+  app.use(
+    cors({
+      origin: true,
+      // origin: "*", // credentials: true와 같이 사용 못함
+      credentials: true, // 쿠키도 같이 보내줌
+    })
+  );
 }
-
-app.use(
-  cors({
-    origin: ["http://localhost:3060", "http://hugonode.com"],
-    // origin: true,
-    // origin: "*", // credentials: true와 같이 사용 못함
-    credentials: true, // 쿠키도 같이 보내줌
-  })
-);
 
 //프론트에서 업로드 폴더 접근시 경로 설정
 app.use("/", express.static(path.join(__dirname, "uploads")));
