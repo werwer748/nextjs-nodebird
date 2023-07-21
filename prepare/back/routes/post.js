@@ -2,6 +2,8 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const multerS3 = require("multer-s3");
+const AWS = require("aws-sdk");
 
 const { Post, Image, Comment, User, Hashtag } = require("../models");
 const { isLoggedIn } = require("./middlewares");
@@ -155,15 +157,27 @@ router
     }
   });
 
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: "ap-northeast-2",
+});
 const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, done) {
-      done(null, "uploads");
-    },
-    filename(req, file, done) {
-      const ext = path.extname(file.originalname); // 확장자 추출(.png)
-      const basename = path.basename(file.originalname, ext); // 파일명 추출
-      done(null, basename + "_" + new Date().getTime() + ext); // 파일명 + 현재시간 + .확장자 ex) photo123456789.png
+  // storage: multer.diskStorage({  //기본적인 multer방식
+  //   destination(req, file, done) {
+  //     done(null, "uploads");
+  //   },
+  //   filename(req, file, done) {
+  //     const ext = path.extname(file.originalname); // 확장자 추출(.png)
+  //     const basename = path.basename(file.originalname, ext); // 파일명 추출
+  //     done(null, basename + "_" + new Date().getTime() + ext); // 파일명 + 현재시간 + .확장자 ex) photo123456789.png
+  //   },
+  // }),
+  storage: multerS3({
+    s3: new AWS.S3(),
+    bucket: "hugonode.s3",
+    key(req, file, cb) {
+      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
     },
   }),
   limits: { fieldSize: 20 * 1024 * 1024 }, // 20MB
@@ -176,8 +190,9 @@ router.post(
   // 상기 upload 미들웨어에서 업로드는 끝내주고 req.files에 이미지 정보를 넣어서 아래로 넘겨줌
   async (req, res, next) => {
     try {
-      // console.log(req.files);
-      res.json(req.files.map((v) => v.filename));
+      console.log(req.files);
+      // res.json(req.files.map((v) => v.filename)); // 기본적인 multer방식
+      res.json(req.files.map((v) => v.location));
     } catch (error) {
       console.error(error);
       next(error);
