@@ -34,9 +34,9 @@ const Post = () => {
         <meta property="og:description" content={singlePost?.content} />
         <meta
           property="og:image"
-          content={singlePost?.Images[0] ? singlePost?.Images[0].src : 'https://nodebird.com/favicon.ico'}
+          content={singlePost?.Images[0] ? singlePost?.Images[0].src : 'http://hugonode.com/favicon.ico'}
         />
-        <meta property="og:url" content={`https://nodebird.com/post/${id}`} />
+        <meta property="og:url" content={`http://hugonode.com/post/${id}`} />
       </Head>
       {singlePost ? <PostCard post={singlePost} /> : <div>게시글이 존재하지 않습니다.</div>}
     </AppLayout>
