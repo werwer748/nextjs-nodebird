@@ -37,7 +37,12 @@ const upload = multer({
     s3: new AWS.S3(),
     bucket: "hugonode.s3",
     key(req, file, cb) {
-      cb(null, `original/${Date.now()}_${path.basename(file.originalname)}`);
+      cb(
+        null,
+        `original/${Date.now()}_${path.basename(
+          encodeURIComponent(file.originalname)
+        )}`
+      );
     },
   }),
   limits: { fieldSize: 20 * 1024 * 1024 }, // 20MB
