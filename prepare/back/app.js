@@ -70,7 +70,7 @@ app.use(
     secret: process.env.COOKIE_SECRET,
     cookie: {
       httpOnly: true,
-      secure: false, // https를 쓸때 true로 바꿔줘야함
+      secure: true, // https를 쓸때 true로 바꿔줘야함
       domain: process.env.NODE_ENV === "production" && ".hugonode.com", // .을 붙여야 api 주소와 일반주소 쿠키가 공유 됨.
     },
   })
