@@ -38,7 +38,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(helmet());
   app.use(
     cors({
-      origin: ["http://hugonode.com"],
+      origin: ["https://hugonode.com", "http://hugonode.com"],
       // origin: true,
       // origin: "*", // credentials: true와 같이 사용 못함
       credentials: true, // 쿠키도 같이 보내줌
