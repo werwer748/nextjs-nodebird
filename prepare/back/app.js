@@ -30,6 +30,7 @@ sequelize
   });
 
 passportConfig();
+app.set("trust proxy", 1); // 배포시에는 https를 쓰기때문에 프론트에서 쿠키를 보낼때도 https로 보내야함. 그래서 프론트에서 보낸 쿠키를 신뢰할수있게 해줌
 app.set("port", process.env.PORT || 3065);
 
 if (process.env.NODE_ENV === "production") {
@@ -72,6 +73,7 @@ app.use(
       httpOnly: true,
       secure: true, // https를 쓸때 true로 바꿔줘야함
       domain: process.env.NODE_ENV === "production" && ".hugonode.com", // .을 붙여야 api 주소와 일반주소 쿠키가 공유 됨.
+      proxy: process.env.NODE_ENV === "production",
     },
   })
 ); // 서버에서 통째로 정보를 가지고있는게 세션 => 근데 이정보가 많아지면 서버가 터짐 => 그래서 쿠키에 id만 가지고 있게끔하고 그걸 패스포트에서 아이디에 매칭시켜서 유저를 가져옴
