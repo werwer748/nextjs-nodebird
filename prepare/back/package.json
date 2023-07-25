@@ -10,6 +10,8 @@
   "author": "HugoK",
   "license": "ISC",
   "dependencies": {
+    "@forestadmin/agent": "^1.13.8",
+    "@forestadmin/datasource-sequelize": "^1.3.5",
     "aws-sdk": "^2.710.0",
     "bcrypt": "^5.1.0",
     "cookie-parser": "^1.4.6",

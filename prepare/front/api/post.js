@@ -45,3 +45,7 @@ export function loadUserPostsAPI(data, lastId) {
 export function loadHashtagPostsAPI(data, lastId) {
   return axios.get(`/hashtag/${encodeURIComponent(data)}?=lastId=${lastId || 0}`);
 }
+
+export function updatePostAPI(data) {
+  return axios.patch(`/post/${data.PostId}`, data);
+}

@@ -17,8 +17,27 @@ const hashtagRouter = require("./routes/hashtag");
 const { sequelize } = require("./models");
 const passportConfig = require("./passport");
 
+const { createAgent } = require("@forestadmin/agent");
+const {
+  createSequelizeDataSource,
+} = require("@forestadmin/datasource-sequelize");
+// Retrieve your sequelize instance
+// const sequelizeInstance = require("./models");
+
 dotenv.config();
 const app = express();
+
+createAgent({
+  authSecret: process.env.FOREST_AUTH_SECRET,
+  envSecret: process.env.FOREST_ENV_SECRET,
+  isProduction: process.env.NODE_ENV === "production",
+  // isProduction: process.env.NODE_ENV !== "production",
+})
+  // Create your Sequelize datasource
+  .addDataSource(createSequelizeDataSource(sequelize))
+  // Replace "myExpressApp" by your Express application
+  .mountOnExpress(app)
+  .start();
 
 sequelize
   .sync({ force: false })
@@ -70,8 +89,8 @@ app.use(
     resave: false, // 일단 두 옵션 모두 false => 딱히 true로 할 이유가 없음
     secret: process.env.COOKIE_SECRET,
     cookie: {
-      httpOnly: true,
-      secure: true, // https를 쓸때 true로 바꿔줘야함
+      httpOnly: process.env.NODE_ENV === "production",
+      secure: process.env.NODE_ENV === "production", // https를 쓸때 true로 바꿔줘야함
       domain: process.env.NODE_ENV === "production" && ".hugonode.com", // .을 붙여야 api 주소와 일반주소 쿠키가 공유 됨.
       proxy: process.env.NODE_ENV === "production",
     },

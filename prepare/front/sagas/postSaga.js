@@ -30,6 +30,9 @@ import {
   retweetRequest,
   retweetSuccess,
   retweetFailure,
+  updatePostRequest,
+  updatePostSuccess,
+  updatePostFailure,
 } from '../slices/postSlice';
 import {
   addCommentAPI,
@@ -42,6 +45,7 @@ import {
   removePostAPI,
   retweetAPI,
   unLikePostAPI,
+  updatePostAPI,
   uploadImagesAPI,
 } from '../api/post';
 
@@ -168,9 +172,25 @@ function* loadPost(action) {
   }
 }
 
+function* updatePost(action) {
+  try {
+    const result = yield call(updatePostAPI, action.payload);
+    console.log('saga updatePost', result.data);
+    yield put(updatePostSuccess(result.data));
+  } catch (error) {
+    console.error(error);
+    yield put(updatePostFailure(error.response.data));
+  }
+}
+
+function* watchUpdatePost() {
+  yield takeLatest(updatePostRequest, updatePost);
+}
+
 function* watchLoadUserPosts() {
   yield throttle(5000, loadUserPostsRequest, loadUserPosts);
 }
+
 function* watchLoadHashtagPosts() {
   yield throttle(5000, loadHashtagPostsRequest, loadHashtagPosts);
 }
@@ -224,5 +244,6 @@ export default function* postSaga() {
     fork(watchLoadPost),
     fork(watchLoadUserPosts),
     fork(watchLoadHashtagPosts),
+    fork(watchUpdatePost),
   ]);
 }

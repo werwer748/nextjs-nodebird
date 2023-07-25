@@ -18,7 +18,7 @@ const UserProfile = () => {
     <Card
       actions={[
         <div key="twit">
-          <Link href={`/user/${me.id}`}>
+          <Link href={`/user/${me.id}`} prefetch={false}>
             짹짹
             <br />
             {me.Posts.length}
@@ -42,7 +42,7 @@ const UserProfile = () => {
     >
       <Card.Meta
         avatar={
-          <Link href={`/user/${me.id}`}>
+          <Link href={`/user/${me.id}`} prefetch={false}>
             <Avatar>{me.nickname[0]}</Avatar>
           </Link>
         }

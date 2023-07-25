@@ -12,6 +12,7 @@ import {
   retweetRequest,
   retweetStateReset,
   unLikePostRequest,
+  updatePostRequest,
 } from '../slices/postSlice';
 import FollowButton from './FollowButton';
 import Link from 'next/link';
@@ -22,10 +23,34 @@ moment.locale('ko');
 const PostCard = ({ post }) => {
   const dispatch = useDispatch();
   const id = useSelector(state => state.user.me?.id);
-  const { removePostLoading } = useSelector(state => state.post);
+  const { removePostLoading, updatePostDone } = useSelector(state => state.post);
+  const [editMode, setEditMode] = useState(false);
 
   // const [liked, setLiked] = useState(false);
   const [commentFormOpened, setCommentFormOpened] = useState(false);
+
+  const onChangePostContent = useCallback(
+    content => () => {
+      dispatch(updatePostRequest({ PostId: post.id, content }));
+      // console.log('update post id', post.id);
+      // console.log('update post content', content);
+    },
+    [post],
+  );
+
+  const onChangePost = useCallback(() => {
+    setEditMode(true);
+  }, []);
+
+  const onCancelPostUpdate = useCallback(() => {
+    setEditMode(false);
+  }, []);
+
+  useEffect(() => {
+    if (updatePostDone) {
+      onCancelPostUpdate();
+    }
+  }, [updatePostDone]);
 
   const onLike = useCallback(() => {
     if (!id) {
@@ -81,7 +106,7 @@ const PostCard = ({ post }) => {
               <>
                 {id && post.User.id === id ? (
                   <>
-                    <Button>수정</Button>
+                    {!post.RetweetId && <Button onClick={onChangePost}>수정</Button>}
                     <Button danger onClick={onRemovePost} loading={removePostLoading}>
                       삭제
                     </Button>
@@ -90,7 +115,9 @@ const PostCard = ({ post }) => {
                   <Button>신고</Button>
                 )}
                 <Button>
-                  <Link href={`/post/${post.id}`}>자세히보기</Link>
+                  <Link href={`/post/${post.id}`} prefetch={false}>
+                    자세히보기
+                  </Link>
                 </Button>
               </>
             }
@@ -106,12 +133,18 @@ const PostCard = ({ post }) => {
             <div style={{ float: 'right' }}>{moment(post.createdAt).format('YYYY.MM.DD')}</div>
             <Card.Meta
               avatar={
-                <Link href={`/user/${post.Retweet.User.id}`}>
+                <Link href={`/user/${post.Retweet.User.id}`} prefetch={false}>
                   <Avatar>{post.Retweet.User.nickname[0]}</Avatar>
                 </Link>
               }
               title={post.Retweet.User.nickname}
-              description={<PostCardContent postData={post.Retweet.content} />}
+              description={
+                <PostCardContent
+                  postData={post.Retweet.content}
+                  onCancelPostUpdate={onCancelPostUpdate}
+                  onChangePostContent={onChangePostContent}
+                />
+              }
             />
           </Card>
         ) : (
@@ -120,12 +153,19 @@ const PostCard = ({ post }) => {
 
             <Card.Meta
               avatar={
-                <Link href={`/user/${post.User.id}`}>
+                <Link href={`/user/${post.User.id}`} prefetch={false}>
                   <Avatar>{post.User.nickname[0]}</Avatar>
                 </Link>
               }
               title={post.User.nickname}
-              description={<PostCardContent postData={post.content} />}
+              description={
+                <PostCardContent
+                  editMode={editMode}
+                  postData={post.content}
+                  onCancelPostUpdate={onCancelPostUpdate}
+                  onChangePostContent={onChangePostContent}
+                />
+              }
             />
           </>
         )}
@@ -143,7 +183,7 @@ const PostCard = ({ post }) => {
                 <List.Item.Meta
                   title={item.User.nickname}
                   avatar={
-                    <Link href={`user/${item.User.id}`}>
+                    <Link href={`user/${item.User.id}`} prefetch={false}>
                       <Avatar>{item.User.nickname[0]}</Avatar>
                     </Link>
                   }

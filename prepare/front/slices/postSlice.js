@@ -42,6 +42,10 @@ const initialState = {
   retweetLoading: false,
   retweetDone: false,
   retweetError: null,
+
+  updatePostLoading: false,
+  updatePostDone: false,
+  updatePostError: null,
 };
 
 const userSlice = createSlice({
@@ -198,6 +202,20 @@ const userSlice = createSlice({
       state.retweetDone = false;
       state.retweetError = null;
     },
+    updatePostRequest(state, action) {
+      state.updatePostLoading = true;
+      state.updatePostDone = false;
+      state.updatePostError = null;
+    },
+    updatePostSuccess(state, action) {
+      state.updatePostLoading = false;
+      state.updatePostDone = true;
+      state.mainPosts.find(v => v.id === action.payload.PostId).content = action.payload.content;
+    },
+    updatePostFailure(state, action) {
+      state.updatePostLoading = false;
+      state.updatePostError = action.payload;
+    },
   },
   extraReducers: builder => {
     builder.addCase(HYDRATE, (state, action) => {
@@ -248,5 +266,9 @@ export const {
   retweetSuccess,
   retweetFailure,
   retweetStateReset,
+
+  updatePostRequest,
+  updatePostSuccess,
+  updatePostFailure,
 } = userSlice.actions;
 export default userSlice;

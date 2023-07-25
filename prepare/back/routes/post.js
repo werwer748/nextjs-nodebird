@@ -207,6 +207,42 @@ router.post(
   }
 );
 
+router.patch("/:postId", isLoggedIn, async (req, res, next) => {
+  const hashtags = req.body.content.match(/#[^\s#]+/g); // 해시태그 추출
+
+  try {
+    await Post.update(
+      {
+        content: req.body.content,
+      },
+      {
+        where: {
+          id: req.params.postId,
+          UserId: req.user.id,
+        },
+      }
+    );
+    const post = await Post.findOne({ where: { id: req.params.postId } });
+    if (hashtags) {
+      const result = await Promise.all(
+        hashtags.map((tag) =>
+          Hashtag.findOrCreate({
+            where: { title: tag.slice(1).toLowerCase() },
+          })
+        )
+      ); // result = [[노드, true], [리액트, true]]
+      await post.setHashtags(result.map((v) => v[0]));
+    }
+    res.json({
+      PostId: parseInt(req.params.postId, 10),
+      content: req.body.content,
+    });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.delete("/:postId", isLoggedIn, async (req, res, next) => {
   try {
     await Post.destroy({
