@@ -30,10 +30,10 @@ sequelize
   });
 
 passportConfig();
-app.set("trust proxy", 1); // 배포시에는 https를 쓰기때문에 프론트에서 쿠키를 보낼때도 https로 보내야함. 그래서 프론트에서 보낸 쿠키를 신뢰할수있게 해줌
 app.set("port", process.env.PORT || 3065);
 
 if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1); // 배포시에는 https를 쓰기때문에 프론트에서 쿠키를 보낼때도 https로 보내야함. 그래서 프론트에서 보낸 쿠키를 신뢰할수있게 해줌
   app.use(morgan("combined"));
   app.use(hpp());
   app.use(helmet());
